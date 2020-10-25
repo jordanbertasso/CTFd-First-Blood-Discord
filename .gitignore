@@ -1,5 +1,5 @@
 venv/
-config.py
+**/config.py
 *.pyc
 .vscode/launch.json
 .vscode/settings.json
