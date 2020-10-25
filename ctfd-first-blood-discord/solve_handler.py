@@ -5,15 +5,14 @@ from dateutil.parser import isoparser
 from announcer import Announcer
 from challenge import Challenge
 from api_session import session as s
+from db import db
 
 
 class Solve_Handler:
     host: str
-    announced_solves: {"chal_id": ["user_ids"]}
 
     def __init__(self):
         super().__init__()
-        self.announced_solves = {}
         self.announcer = Announcer()
 
     def handle_solves(self, loop):
@@ -26,14 +25,21 @@ class Solve_Handler:
             chal = Challenge(
                 chal_data["id"], chal_data["name"], chal_data["solves"])
 
-            if chal.id not in self.announced_solves.keys() and chal.num_solves > 0:
+            db.cursor.execute(
+                "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id,))
+            res = db.cursor.fetchall()
+            logging.debug(f"Solvers id's: {res}")
+            if not res and chal.num_solves > 0:
                 self.handle_first_blood(chal)
             else:
                 logging.debug(f"Already announced first blood for {chal.name}")
 
             if config.announce_all_solves and chal.num_solves > 0:
                 try:
-                    assert chal.id in self.announced_solves.keys()
+                    db.cursor.execute(
+                        "SELECT chal_id FROM announced_solves WHERE chal_id == ?", (chal.id, ))
+                    res = db.cursor.fetchone()
+                    assert res != []
                 except AssertionError:
                     logging.error(
                         "Challenge already solved but wasn't announced. Skipping")
@@ -48,7 +54,9 @@ class Solve_Handler:
 
         user: User = chal.get_first_blood_user()
 
-        self.announced_solves[chal.id] = [user.id]
+        db.cursor.execute(
+            "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
+        db.conn.commit()
 
         self.announcer.announce(chal.name, user.name, first_blood=True)
 
@@ -56,13 +64,20 @@ class Solve_Handler:
 
         users: [User] = chal.get_solved_users()
 
+        db.cursor.execute(
+            "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id, ))
+        res = db.cursor.fetchall()
+
         for user in users:
-            if user.id not in self.announced_solves[chal.id]:
+            if (user.id,) not in res:
                 logging.info(
                     f"New Solve - Challenge: {chal.name} - User: {user.name}")
-                self.announced_solves[chal.id].append(user.id)
+
+                db.cursor.execute(
+                    "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
+                db.conn.commit()
                 self.announcer.announce(
                     chal.name, user.name, first_blood=False)
             else:
                 logging.debug(
-                    f"Already announced solve on {chal.name} by {user.name}")
+                    f"Already announced solve on {chal.name} by {user.name} - {user.id}")
