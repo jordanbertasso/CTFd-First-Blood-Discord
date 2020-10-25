@@ -59,14 +59,14 @@ class Announcer:
     def check_rate_limits(self):
         if self.rate_limit_remaining == 0:
             secs = self.rate_limit_sleep_time
-            logging.debug(f"Sleeping for {secs}s\n")
+            logging.info(f"Sleeping for {secs}s - Rate Limits\n")
             time.sleep(secs)
 
     def check_429(self, res):
         if res.status_code == 429:
             logging.debug(res.json())
             self.rate_limit_sleep_time = res.json()["retry_after"]/1000
-            logging.debug(
+            logging.info(
                 f"429 Received - Sleeping for {self.rate_limit_sleep_time}s")
             time.sleep(self.rate_limit_sleep_time)
             res = requests.post(self.webhook_url, json=self.webhook_data)

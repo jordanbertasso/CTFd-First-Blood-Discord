@@ -16,7 +16,7 @@ class Solve_Handler:
         self.announcer = Announcer()
 
     def handle_solves(self, loop):
-        logging.info("NEW ROUND")
+        logging.debug("NEW ROUND")
         res = s.get("statistics/challenges/solves", json=True)
 
         chals = res.json()["data"]
