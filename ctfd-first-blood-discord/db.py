@@ -3,7 +3,7 @@ import os
 
 
 class db:
-    conn = sqlite3.connect('ctfd-solve-announcer.db')
+    conn = sqlite3.connect('./data/ctfd-solve-announcer.db')
     cursor = conn.cursor()
 
     @staticmethod

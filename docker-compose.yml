@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  bot:
+    build:
+      context: .
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - ./ctfd-first-blood-discord/data:/app/data
+

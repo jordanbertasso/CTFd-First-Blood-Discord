@@ -1,13 +1,12 @@
-NAME = first-blood-bot
-
 build:
-	docker build -t jordanbertasso/$(NAME) .
+	docker-compose build
 
 stop:
-	docker stop -t 0 $(NAME)
+	docker-compose down
 
 run:
-	$(MAKE) stop; $(MAKE) build; docker run -d --rm --name $(NAME) jordanbertasso/$(NAME)
+	docker-compose up --build -d
 
 logs:
-	docker logs -f $(NAME)
+	docker-compose logs -f
+
