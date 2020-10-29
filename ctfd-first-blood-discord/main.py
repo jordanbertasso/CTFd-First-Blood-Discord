@@ -12,7 +12,7 @@ def main():
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
 
-    handler = logging.FileHandler("ctfd-first-blood-discord.log")
+    handler = logging.FileHandler("./data/ctfd-first-blood-discord.log")
     handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(handler)
 
