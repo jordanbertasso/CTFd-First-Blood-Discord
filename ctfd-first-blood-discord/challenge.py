@@ -3,6 +3,7 @@ import logging
 from dateutil.parser import isoparser
 from user import User
 from api_session import session as s
+from json.decoder import JSONDecodeError
 
 
 class Challenge():
@@ -16,9 +17,16 @@ class Challenge():
         self.num_solves = num_solves
 
     def get_solved_users(self):
-        res = s.get(f"challenges/{self.id}/solves", json=True)
+        try:
+            res = s.get(f"challenges/{self.id}/solves", json=True)
+        except:
+            return None
 
-        data = res.json()["data"]
+        try:
+            data = res.json()["data"]
+        except JSONDecodeError as e:
+            print(e)
+            return []
 
         solved_users = [User(solve["account_id"], solve["name"])
                         for solve in data]
@@ -26,7 +34,10 @@ class Challenge():
         return solved_users
 
     def get_first_blood_user(self) -> User:
-        res = s.get(f"challenges/{self.id}/solves", json=True)
+        try:
+            res = s.get(f"challenges/{self.id}/solves", json=True)
+        except:
+            return None
 
         data = res.json()["data"]
 

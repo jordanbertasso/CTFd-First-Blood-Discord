@@ -18,7 +18,11 @@ class Solve_Handler:
     def handle_past_solves(self, loop):
         logging.debug("HANDLING PAST SOLVES")
 
-        res = s.get("statistics/challenges/solves", json=True)
+        try:
+            res = s.get("statistics/challenges/solves", json=True)
+        except:
+            loop.call_later(config.poll_period, self.handle_solves, loop)
+            return
 
         chals = res.json()["data"]
 
@@ -27,13 +31,18 @@ class Solve_Handler:
                 chal_data["id"], chal_data["name"], chal_data["solves"])
 
             users: [User] = chal.get_solved_users()
-            db.add_to_db(chal, users)
+            if users:
+                db.add_to_db(chal, users)
 
         loop.call_soon(self.handle_solves, loop)
 
     def handle_solves(self, loop):
         logging.debug("NEW ROUND")
-        res = s.get("statistics/challenges/solves", json=True)
+        try:
+            res = s.get("statistics/challenges/solves", json=True)
+        except:
+            loop.call_later(config.poll_period, self.handle_solves, loop)
+            return
 
         chals = res.json()["data"]
 
@@ -69,6 +78,8 @@ class Solve_Handler:
         logging.info(f"Challenge: {chal.name} - {chal.id}")
 
         user: User = chal.get_first_blood_user()
+        if not user:
+            return
 
         db.cursor.execute(
             "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
@@ -79,6 +90,9 @@ class Solve_Handler:
     def handle_new_solves(self, chal: Challenge):
 
         users: [User] = chal.get_solved_users()
+
+        if not users:
+            return
 
         db.cursor.execute(
             "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id, ))
