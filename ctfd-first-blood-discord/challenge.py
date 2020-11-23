@@ -24,7 +24,7 @@ class Challenge():
 
         try:
             data = res.json()["data"]
-        except JSONDecodeError as e:
+        except (ValueError, JSONDecodeError) as e:
             print(e)
             return []
 
@@ -39,7 +39,11 @@ class Challenge():
         except:
             return None
 
-        data = res.json()["data"]
+        try:
+            data = res.json()["data"]
+        except (ValueError, JSONDecodeError) as e:
+            print(e)
+            return None
 
         solves = [{
             "user_id": solve["account_id"],

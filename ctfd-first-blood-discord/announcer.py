@@ -3,6 +3,7 @@ import json
 import config
 import time
 import logging
+from json.decoder import JSONDecodeError
 
 
 class Announcer:
@@ -63,9 +64,15 @@ class Announcer:
             time.sleep(secs)
 
     def check_429(self, res):
-        if res.status_code == 429:
-            logging.debug(res.json())
-            self.rate_limit_sleep_time = res.json()["retry_after"]/1000
+        if res.status_code == 429:    
+
+            try:
+                json = logging.debug(res.json())
+                self.rate_limit_sleep_time = json["retry_after"]/1000
+            except (ValueError, JSONDecodeError) as e:
+                print(e)
+                self.rate_limit_sleep_time = 60
+
             logging.info(
                 f"429 Received - Sleeping for {self.rate_limit_sleep_time}s")
             time.sleep(self.rate_limit_sleep_time)

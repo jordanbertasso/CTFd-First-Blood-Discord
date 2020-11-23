@@ -6,6 +6,7 @@ from announcer import Announcer
 from challenge import Challenge
 from api_session import session as s
 from db import db
+from json.decoder import JSONDecodeError
 
 
 class Solve_Handler:
@@ -24,7 +25,11 @@ class Solve_Handler:
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
 
-        chals = res.json()["data"]
+        try:
+            chals = res.json()["data"]
+        except (ValueError, JSONDecodeError) as e:
+            print(e)
+            chals = []
 
         for chal_data in chals:
             chal = Challenge(
@@ -44,7 +49,11 @@ class Solve_Handler:
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
 
-        chals = res.json()["data"]
+        try:
+            chals = res.json()["data"]
+        except (ValueError, JSONDecodeError) as e:
+            print(e)
+            chals = []
 
         for chal_data in chals:
             chal = Challenge(
