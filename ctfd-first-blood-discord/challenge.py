@@ -24,7 +24,7 @@ class Challenge():
 
         try:
             data = res.json()["data"]
-        except (ValueError, JSONDecodeError) as e:
+        except (ValueError, JSONDecodeError, KeyError) as e:
             print(e)
             return []
 
@@ -41,7 +41,7 @@ class Challenge():
 
         try:
             data = res.json()["data"]
-        except (ValueError, JSONDecodeError) as e:
+        except (ValueError, JSONDecodeError, KeyError) as e:
             print(e)
             return None
 

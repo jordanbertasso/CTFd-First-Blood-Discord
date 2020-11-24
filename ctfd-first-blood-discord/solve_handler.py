@@ -27,7 +27,7 @@ class Solve_Handler:
 
         try:
             chals = res.json()["data"]
-        except (ValueError, JSONDecodeError) as e:
+        except (ValueError, JSONDecodeError, KeyError) as e:
             print(e)
             chals = []
 
@@ -51,7 +51,7 @@ class Solve_Handler:
 
         try:
             chals = res.json()["data"]
-        except (ValueError, JSONDecodeError) as e:
+        except (ValueError, JSONDecodeError, KeyError) as e:
             print(e)
             chals = []
 
