@@ -9,8 +9,10 @@ class API_Session(Session):
 
     def __init__(self):
         super().__init__()
-        self.headers.update(
-            {"Authorization": f"Token {config.api_token}", "Accept": "application/json"})
+        self.headers.update({
+            "Authorization": f"Token {config.api_token}",
+            "Accept": "application/json"
+        })
         self.host = config.host
         parsed = urlparse(config.host)
         self.endpoint = urljoin(parsed.geturl(), "/api/v1/")

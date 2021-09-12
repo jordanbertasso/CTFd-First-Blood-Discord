@@ -20,7 +20,7 @@ def get_team_by_user_id(user_id: int) -> Team:
 
 
 def get_team_id(user_id: int) -> Optional[int]:
-    res = s.get(f"users/{user_id}", json=True)
+    res = s.get(f"users/{user_id}")
 
     try:
         data = res.json()['data']
@@ -31,7 +31,7 @@ def get_team_id(user_id: int) -> Optional[int]:
 
 
 def get_team_name(team_id: int) -> Optional[str]:
-    res = s.get(f"teams/{team_id}", json=True)
+    res = s.get(f"teams/{team_id}")
 
     try:
         data = res.json()['data']

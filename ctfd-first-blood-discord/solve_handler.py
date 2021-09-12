@@ -21,7 +21,7 @@ class Solve_Handler:
         logging.debug("HANDLING PAST SOLVES")
 
         try:
-            res = s.get("statistics/challenges/solves", json=True)
+            res = s.get("statistics/challenges/solves")
         except:
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
@@ -45,7 +45,7 @@ class Solve_Handler:
     def handle_solves(self, loop):
         logging.debug("NEW ROUND")
         try:
-            res = s.get("statistics/challenges/solves", json=True)
+            res = s.get("statistics/challenges/solves")
         except:
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return

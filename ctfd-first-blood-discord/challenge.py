@@ -18,7 +18,7 @@ class Challenge():
 
     def get_solved_users(self):
         try:
-            res = s.get(f"challenges/{self.id}/solves", json=True)
+            res = s.get(f"challenges/{self.id}/solves")
         except:
             return None
 
@@ -35,7 +35,7 @@ class Challenge():
 
     def get_first_blood_user(self) -> User:
         try:
-            res = s.get(f"challenges/{self.id}/solves", json=True)
+            res = s.get(f"challenges/{self.id}/solves")
         except:
             return None
 
