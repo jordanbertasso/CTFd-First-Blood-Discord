@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import config
-import os
 
 from db import db
 

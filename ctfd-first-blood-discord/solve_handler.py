@@ -1,12 +1,12 @@
+from typing import List
 import config
 import logging
-from requests import Session
-from dateutil.parser import isoparser
 from announcer import Announcer
 from challenge import Challenge
 from api_session import session as s
 from db import db
 from json.decoder import JSONDecodeError
+from user import User
 
 
 class Solve_Handler:
@@ -15,7 +15,7 @@ class Solve_Handler:
     def __init__(self):
         super().__init__()
         self.announcer = Announcer()
-    
+
     def handle_past_solves(self, loop):
         logging.debug("HANDLING PAST SOLVES")
 
@@ -35,7 +35,7 @@ class Solve_Handler:
             chal = Challenge(
                 chal_data["id"], chal_data["name"], chal_data["solves"])
 
-            users: [User] = chal.get_solved_users()
+            users: List[User] = chal.get_solved_users()
             if users:
                 db.add_to_db(chal, users)
 
@@ -94,11 +94,11 @@ class Solve_Handler:
             "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
         db.conn.commit()
 
-        self.announcer.announce(chal.name, user.name, first_blood=True)
+        self.announcer.announce(chal.name, user.name, user.team.name, first_blood=True)
 
     def handle_new_solves(self, chal: Challenge):
 
-        users: [User] = chal.get_solved_users()
+        users: List[User] = chal.get_solved_users()
 
         if not users:
             return
@@ -116,7 +116,7 @@ class Solve_Handler:
                     "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
                 db.conn.commit()
                 self.announcer.announce(
-                    chal.name, user.name, first_blood=False)
+                    chal.name, user.name, user.team.name, first_blood=False)
             else:
                 logging.debug(
                     f"Already announced solve on {chal.name} by {user.name} - {user.id}")

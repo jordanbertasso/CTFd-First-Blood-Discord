@@ -1,5 +1,5 @@
 import sqlite3
-import os
+from typing import List
 from challenge import Challenge
 from user import User
 
@@ -16,7 +16,7 @@ class db:
         db.conn.commit()
     
     @staticmethod
-    def add_to_db(chal: Challenge, solved_users: [User]):
+    def add_to_db(chal: Challenge, solved_users: List[User]):
         db.cursor.execute(
             "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id,))
         announced_ids = db.cursor.fetchall()

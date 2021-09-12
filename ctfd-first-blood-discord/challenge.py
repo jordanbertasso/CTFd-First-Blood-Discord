@@ -1,4 +1,3 @@
-import config
 import logging
 from dateutil.parser import isoparser
 from user import User
