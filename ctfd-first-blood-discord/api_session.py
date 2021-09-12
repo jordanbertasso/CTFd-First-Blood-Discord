@@ -11,7 +11,8 @@ class API_Session(Session):
         super().__init__()
         self.headers.update({
             "Authorization": f"Token {config.api_token}",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         })
         self.host = config.host
         parsed = urlparse(config.host)
