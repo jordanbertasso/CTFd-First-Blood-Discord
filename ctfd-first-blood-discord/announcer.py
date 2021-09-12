@@ -28,8 +28,6 @@ class Announcer:
         if first_blood:
             self.webhook_data["content"] = self.first_blood_string.format(
                 user_name=user_name, team_name=team_name, chal_name=chal_name)
-
-            print(self.webhook_data)
         else:
             self.webhook_data["content"] = self.solve_string.format(
                 user_name=user_name, team_name=team_name, chal_name=chal_name)
@@ -66,7 +64,7 @@ class Announcer:
             time.sleep(secs)
 
     def check_429(self, res):
-        if res.status_code == 429:    
+        if res.status_code == 429:
 
             try:
                 json = res.json()
