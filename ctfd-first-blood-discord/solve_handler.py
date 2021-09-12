@@ -1,11 +1,12 @@
-from typing import List
-import config
 import logging
-from announcer import Announcer
-from challenge import Challenge
-from api_session import session as s
-from db import db
 from json.decoder import JSONDecodeError
+from typing import List
+
+import config
+from announcer import Announcer
+from api_session import session as s
+from challenge import Challenge
+from db import db
 from user import User
 
 

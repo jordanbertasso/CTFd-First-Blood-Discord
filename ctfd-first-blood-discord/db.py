@@ -1,5 +1,6 @@
 import sqlite3
 from typing import List
+
 from challenge import Challenge
 from user import User
 

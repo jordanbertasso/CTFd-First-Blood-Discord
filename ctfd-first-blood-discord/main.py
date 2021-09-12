@@ -2,7 +2,6 @@ import asyncio
 import logging
 
 from db import db
-
 from solve_handler import Solve_Handler
 
 

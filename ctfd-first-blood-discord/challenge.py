@@ -1,8 +1,9 @@
 import logging
+from json.decoder import JSONDecodeError
+
+from api_session import session as s
 from dateutil.parser import isoparser
 from user import User
-from api_session import session as s
-from json.decoder import JSONDecodeError
 
 
 class Challenge():

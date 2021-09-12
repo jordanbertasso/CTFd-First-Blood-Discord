@@ -1,7 +1,8 @@
 from json.decoder import JSONDecodeError
 from typing import Optional
-from team import Team
+
 from api_session import session as s
+from team import Team
 
 
 def get_team_by_user_id(user_id: int) -> Team:

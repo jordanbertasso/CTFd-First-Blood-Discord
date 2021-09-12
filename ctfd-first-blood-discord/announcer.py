@@ -1,9 +1,10 @@
-import requests
 import json
-import config
-import time
 import logging
+import time
 from json.decoder import JSONDecodeError
+
+import config
+import requests
 
 
 class Announcer:

@@ -1,5 +1,6 @@
-import config
 from urllib.parse import urljoin, urlparse
+
+import config
 from requests import Session
 
 
