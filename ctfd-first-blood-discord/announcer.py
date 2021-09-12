@@ -23,15 +23,15 @@ class Announcer:
         self.rate_limit_remaining = 1
         self.rate_limit_sleep_time = 0
 
-    def announce(self, chal_name: str, user_name: str, team_name: str, first_blood=False):
+    def announce(self, chal_name: str, user_name: str, first_blood=False):
         self.check_rate_limits()
 
         if first_blood:
             self.webhook_data["content"] = self.first_blood_string.format(
-                user_name=user_name, team_name=team_name, chal_name=chal_name)
+                user_name=user_name, chal_name=chal_name)
         else:
             self.webhook_data["content"] = self.solve_string.format(
-                user_name=user_name, team_name=team_name, chal_name=chal_name)
+                user_name=user_name, chal_name=chal_name)
 
         res = requests.post(self.webhook_url, json=self.webhook_data)
 

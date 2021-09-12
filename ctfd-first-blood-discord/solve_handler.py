@@ -95,7 +95,7 @@ class Solve_Handler:
             "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
         db.conn.commit()
 
-        self.announcer.announce(chal.name, user.name, user.team.name, first_blood=True)
+        self.announcer.announce(chal.name, user.name, first_blood=True)
 
     def handle_new_solves(self, chal: Challenge):
 
@@ -116,8 +116,9 @@ class Solve_Handler:
                 db.cursor.execute(
                     "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
                 db.conn.commit()
-                self.announcer.announce(
-                    chal.name, user.name, user.team.name, first_blood=False)
+                self.announcer.announce(chal.name,
+                                        user.name,
+                                        first_blood=False)
             else:
                 logging.debug(
                     f"Already announced solve on {chal.name} by {user.name} - {user.id}")
