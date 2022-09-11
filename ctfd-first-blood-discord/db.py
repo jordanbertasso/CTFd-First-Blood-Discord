@@ -19,7 +19,7 @@ class db:
     @staticmethod
     def add_to_db(chal: Challenge, solved_users: List[User]):
         db.cursor.execute(
-            "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id,))
+            "SELECT user_id FROM announced_solves WHERE chal_id = ?", (chal.id,))
         announced_ids = db.cursor.fetchall()
 
         for user in solved_users:

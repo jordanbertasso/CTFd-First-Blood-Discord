@@ -33,8 +33,8 @@ class Solve_Handler:
             chals = []
 
         for chal_data in chals:
-            chal = Challenge(
-                chal_data["id"], chal_data["name"], chal_data["solves"])
+            chal = Challenge(chal_data["id"], chal_data["name"],
+                             chal_data["solves"])
 
             users: List[User] = chal.get_solved_users()
             if users:
@@ -57,12 +57,13 @@ class Solve_Handler:
             chals = []
 
         for chal_data in chals:
-            chal = Challenge(
-                chal_data["id"], chal_data["name"], chal_data["solves"])
+            chal = Challenge(chal_data["id"], chal_data["name"],
+                             chal_data["solves"])
 
             if chal.num_solves > 0:
                 db.cursor.execute(
-                "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id,))
+                    "SELECT user_id FROM announced_solves WHERE chal_id = ?",
+                    (chal.id, ))
                 res = db.cursor.fetchall()
                 logging.debug(f"Solvers id's: {res}")
 
@@ -70,17 +71,20 @@ class Solve_Handler:
                 if not res:
                     self.handle_first_blood(chal)
                 else:
-                logging.debug(f"Already announced first blood for {chal.name}")
+                    logging.debug(
+                        f"Already announced first blood for {chal.name}")
 
             if config.announce_all_solves and chal.num_solves > 0:
                 try:
                     db.cursor.execute(
-                        "SELECT chal_id FROM announced_solves WHERE chal_id == ?", (chal.id, ))
+                        "SELECT chal_id FROM announced_solves WHERE chal_id = ?",
+                        (chal.id, ))
                     res = db.cursor.fetchone()
                     assert res != []
                 except AssertionError:
                     logging.error(
-                        "Challenge already solved but wasn't announced. Skipping")
+                        "Challenge already solved but wasn't announced. Skipping"
+                    )
                     break
 
                 self.handle_new_solves(chal)
@@ -94,8 +98,8 @@ class Solve_Handler:
         if not user:
             return
 
-        db.cursor.execute(
-            "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
+        db.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
+                          (chal.id, user.id))
         db.conn.commit()
 
         self.announcer.announce(chal.name, user.name, first_blood=True)
@@ -108,20 +112,22 @@ class Solve_Handler:
             return
 
         db.cursor.execute(
-            "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id, ))
+            "SELECT user_id FROM announced_solves WHERE chal_id = ?",
+            (chal.id, ))
         res = db.cursor.fetchall()
 
         for user in users:
-            if (user.id,) not in res:
+            if (user.id, ) not in res:
                 logging.info(
                     f"New Solve - Challenge: {chal.name} - User: {user.name}")
 
-                db.cursor.execute(
-                    "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
+                db.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
+                                  (chal.id, user.id))
                 db.conn.commit()
                 self.announcer.announce(chal.name,
                                         user.name,
                                         first_blood=False)
             else:
                 logging.debug(
-                    f"Already announced solve on {chal.name} by {user.name} - {user.id}")
+                    f"Already announced solve on {chal.name} by {user.name} - {user.id}"
+                )
