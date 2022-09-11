@@ -6,7 +6,7 @@ from user import User
 
 
 class db:
-    conn = sqlite3.connect('./data/ctfd-solve-announcer.db')
+    conn = sqlite3.connect('./data/ctfd-solve-announcer.sqlite')
     cursor = conn.cursor()
 
     @staticmethod
