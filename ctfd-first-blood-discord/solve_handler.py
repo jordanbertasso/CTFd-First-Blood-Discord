@@ -60,13 +60,16 @@ class Solve_Handler:
             chal = Challenge(
                 chal_data["id"], chal_data["name"], chal_data["solves"])
 
-            db.cursor.execute(
+            if chal.num_solves > 0:
+                db.cursor.execute(
                 "SELECT user_id FROM announced_solves WHERE chal_id == ?", (chal.id,))
-            res = db.cursor.fetchall()
-            logging.debug(f"Solvers id's: {res}")
-            if not res and chal.num_solves > 0:
-                self.handle_first_blood(chal)
-            else:
+                res = db.cursor.fetchall()
+                logging.debug(f"Solvers id's: {res}")
+
+                # If there are no announced solves then announce the first blood
+                if not res:
+                    self.handle_first_blood(chal)
+                else:
                 logging.debug(f"Already announced first blood for {chal.name}")
 
             if config.announce_all_solves and chal.num_solves > 0:
