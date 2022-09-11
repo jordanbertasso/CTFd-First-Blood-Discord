@@ -14,7 +14,7 @@ category_cache: Dict[int, str] = {}
 class Challenge():
     chal_id: int
     name: str
-    category: str
+    category: str | None = None
     num_solves: int
 
     def __init__(self, chal_id: int, name: str, num_solves: int):

@@ -1,7 +1,7 @@
+import asyncio
 import logging
-from asyncio import AbstractEventLoop
-from json.decoder import JSONDecodeError
 import random
+from json.decoder import JSONDecodeError
 from typing import Any, Dict
 
 import requests
@@ -20,14 +20,14 @@ class SolveHandler:
         super().__init__()
         self.announcer = Announcer()
 
-    def handle_past_solves(self, loop: AbstractEventLoop):
+    async def handle_past_solves(self):
         logging.debug("HANDLING PAST SOLVES")
 
         try:
             res = s.get("statistics/challenges/solves")
         except requests.RequestException as error:
             logging.error(error)
-            loop.call_later(config.poll_period, self.handle_solves, loop)
+            asyncio.create_task(self.handle_solves())
             return
 
         try:
@@ -44,15 +44,17 @@ class SolveHandler:
             if users:
                 db.add_to_db(chal, users)
 
-        loop.call_soon(self.handle_solves, loop)
+        asyncio.create_task(self.handle_solves())
 
-    def handle_solves(self, loop: AbstractEventLoop):
+    async def handle_solves(self):
+        await asyncio.sleep(config.poll_period)
+
         logging.debug("NEW ROUND")
         try:
             res = s.get("statistics/challenges/solves")
         except requests.RequestException as error:
             logging.error(error)
-            loop.call_later(config.poll_period, self.handle_solves, loop)
+            asyncio.create_task(self.handle_solves())
             return
 
         try:
@@ -95,7 +97,7 @@ class SolveHandler:
 
                 self.handle_new_solves(chal)
 
-        loop.call_later(config.poll_period, self.handle_solves, loop)
+        asyncio.create_task(self.handle_solves())
 
     def handle_first_blood(self, chal: Challenge):
         logging.info("Challenge: %s - %s", chal.name, chal.chal_id)

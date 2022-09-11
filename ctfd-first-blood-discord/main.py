@@ -17,7 +17,7 @@ def main():
 
     solve_handler = SolveHandler()
     loop = asyncio.new_event_loop()
-    loop.call_soon(solve_handler.handle_past_solves, loop)
+    loop.create_task(solve_handler.handle_past_solves())
 
     try:
         loop.run_forever()
