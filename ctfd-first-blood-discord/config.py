@@ -23,9 +23,9 @@ announce_all_solves = True
 
 # Category Emojis (if any)
 category_emojis = {
-    "web": [":globe_with_meridians:", ":spider_web:"],
-    "crypto": [":sob:", ":closed_lock_with_key:"],
-    "pwn": [":bug:", ":chess_pawn:"],
+    "web": [":globe_with_meridians:"],
+    "crypto": [":sob::closed_lock_with_key:"],
+    "pwn": [":bug:"],
     "rev": [":rewind:"],
     "forensics": [":mag:"],
     "osint": [":detective:"],
