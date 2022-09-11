@@ -1,84 +1,90 @@
 import logging
+from asyncio import AbstractEventLoop
 from json.decoder import JSONDecodeError
-from typing import List
+import random
+from typing import Any, Dict
+
+import requests
 
 import config
 from announcer import Announcer
 from api_session import session as s
 from challenge import Challenge
 from db import db
-from user import User
 
 
-class Solve_Handler:
+class SolveHandler:
     host: str
 
     def __init__(self):
         super().__init__()
         self.announcer = Announcer()
 
-    def handle_past_solves(self, loop):
+    def handle_past_solves(self, loop: AbstractEventLoop):
         logging.debug("HANDLING PAST SOLVES")
 
         try:
             res = s.get("statistics/challenges/solves")
-        except:
+        except requests.RequestException as error:
+            logging.debug(error)
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
 
         try:
-            chals = res.json()["data"]
-        except (ValueError, JSONDecodeError, KeyError) as e:
-            print(e)
+            chals: list[Dict[str, Any]] = res.json()["data"]
+        except (ValueError, JSONDecodeError, KeyError) as error:
+            print(error)
             chals = []
 
         for chal_data in chals:
             chal = Challenge(chal_data["id"], chal_data["name"],
                              chal_data["solves"])
 
-            users: List[User] = chal.get_solved_users()
+            users = chal.get_solved_users()
             if users:
                 db.add_to_db(chal, users)
 
         loop.call_soon(self.handle_solves, loop)
 
-    def handle_solves(self, loop):
+    def handle_solves(self, loop: AbstractEventLoop):
         logging.debug("NEW ROUND")
         try:
             res = s.get("statistics/challenges/solves")
-        except:
+        except requests.RequestException as error:
+            logging.debug(error)
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
 
         try:
-            chals = res.json()["data"]
-        except (ValueError, JSONDecodeError, KeyError) as e:
-            print(e)
+            chals: list[Dict[str, Any]] = res.json()["data"]
+        except (ValueError, JSONDecodeError, KeyError) as error:
+            print(error)
             chals = []
 
         for chal_data in chals:
+
             chal = Challenge(chal_data["id"], chal_data["name"],
                              chal_data["solves"])
 
             if chal.num_solves > 0:
                 db.cursor.execute(
                     "SELECT user_id FROM announced_solves WHERE chal_id = ?",
-                    (chal.id, ))
+                    (chal.chal_id, ))
                 res = db.cursor.fetchall()
-                logging.debug(f"Solvers id's: {res}")
+                logging.debug("Solvers id's: %s", res)
 
                 # If there are no announced solves then announce the first blood
                 if not res:
                     self.handle_first_blood(chal)
                 else:
-                    logging.debug(
-                        f"Already announced first blood for {chal.name}")
+                    logging.debug("Already announced first blood for %s",
+                                  chal.name)
 
             if config.announce_all_solves and chal.num_solves > 0:
                 try:
                     db.cursor.execute(
                         "SELECT chal_id FROM announced_solves WHERE chal_id = ?",
-                        (chal.id, ))
+                        (chal.chal_id, ))
                     res = db.cursor.fetchone()
                     assert res != []
                 except AssertionError:
@@ -92,42 +98,54 @@ class Solve_Handler:
         loop.call_later(config.poll_period, self.handle_solves, loop)
 
     def handle_first_blood(self, chal: Challenge):
-        logging.info(f"Challenge: {chal.name} - {chal.id}")
+        logging.info("Challenge: %s - %s", chal.name, chal.chal_id)
 
-        user: User = chal.get_first_blood_user()
+        user = chal.get_first_blood_user()
         if not user:
             return
 
         db.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
-                          (chal.id, user.id))
+                          (chal.chal_id, user.user_id))
         db.conn.commit()
 
-        self.announcer.announce(chal.name, user.name, first_blood=True)
+        if chal.category:
+            emojis = config.category_emojis.get(chal.category, "")
+        else:
+            emojis = ""
+
+        self.announcer.announce(chal.name,
+                                user.name,
+                                random.choice(emojis),
+                                first_blood=True)
 
     def handle_new_solves(self, chal: Challenge):
-
-        users: List[User] = chal.get_solved_users()
+        users = chal.get_solved_users()
 
         if not users:
             return
 
         db.cursor.execute(
             "SELECT user_id FROM announced_solves WHERE chal_id = ?",
-            (chal.id, ))
+            (chal.chal_id, ))
         res = db.cursor.fetchall()
 
         for user in users:
-            if (user.id, ) not in res:
-                logging.info(
-                    f"New Solve - Challenge: {chal.name} - User: {user.name}")
+            if (user.user_id, ) not in res:
+                logging.info("New Solve - Challenge: %s - User: %s", chal.name,
+                             user.name)
 
                 db.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
-                                  (chal.id, user.id))
+                                  (chal.chal_id, user.user_id))
                 db.conn.commit()
+
+                if chal.category:
+                    emojis = config.category_emojis.get(chal.category, "")
+                else:
+                    emojis = ""
                 self.announcer.announce(chal.name,
                                         user.name,
+                                        random.choice(emojis),
                                         first_blood=False)
             else:
-                logging.debug(
-                    f"Already announced solve on {chal.name} by {user.name} - {user.id}"
-                )
+                logging.debug("Already announced solve on %s by %s - %s",
+                              chal.name, user.name, user.user_id)

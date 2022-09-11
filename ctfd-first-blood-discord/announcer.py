@@ -2,13 +2,15 @@ import json
 import logging
 import time
 from json.decoder import JSONDecodeError
+from typing import Any, Dict
+
+import requests
 
 import config
-import requests
 
 
 class Announcer:
-    webhook_data: dict
+    webhook_data: Dict[str, Any]
     solve_string: str
     first_blood_string: str
     rate_limit_remaining: int
@@ -23,15 +25,19 @@ class Announcer:
         self.rate_limit_remaining = 1
         self.rate_limit_sleep_time = 0
 
-    def announce(self, chal_name: str, user_name: str, first_blood=False):
+    def announce(self,
+                 chal_name: str,
+                 user_name: str,
+                 emoji: str,
+                 first_blood: bool = False):
         self.check_rate_limits()
 
         if first_blood:
             self.webhook_data["content"] = self.first_blood_string.format(
-                user_name=user_name, chal_name=chal_name)
+                user_name=user_name, chal_name=chal_name, emojis=emoji)
         else:
             self.webhook_data["content"] = self.solve_string.format(
-                user_name=user_name, chal_name=chal_name)
+                user_name=user_name, chal_name=chal_name, emojis=emoji)
 
         res = requests.post(self.webhook_url, json=self.webhook_data)
 
@@ -42,10 +48,11 @@ class Announcer:
 
         self.update_rate_limits(res)
 
-    def update_rate_limits(self, res):
+    def update_rate_limits(self, res: requests.Response):
         try:
             self.rate_limit_remaining = min(
-                int(res.headers["X-RateLimit-Remaining"]), int(res.headers["X-RateLimit-Global"]))
+                int(res.headers["X-RateLimit-Remaining"]),
+                int(res.headers["X-RateLimit-Global"]))
         except KeyError:
             self.rate_limit_remaining = int(
                 res.headers["X-RateLimit-Remaining"])
@@ -53,28 +60,28 @@ class Announcer:
         self.rate_limit_sleep_time = int(
             res.headers["X-RateLimit-Reset-After"])
 
-        logging.debug(f"Bucket {res.headers['X-RateLimit-Bucket']}")
+        logging.debug("Bucket %s", res.headers['X-RateLimit-Bucket'])
         logging.debug(res.status_code)
-        logging.debug(f"{self.rate_limit_remaining=}")
-        logging.debug(f"{self.rate_limit_sleep_time=}")
+        logging.debug("rate_limit_remaining=%d", self.rate_limit_remaining)
+        logging.debug("rate_limit_sleep_time=%d", self.rate_limit_sleep_time)
 
     def check_rate_limits(self):
         if self.rate_limit_remaining == 0:
             secs = self.rate_limit_sleep_time
-            logging.info(f"Sleeping for {secs}s - Rate Limits\n")
+            logging.info("Sleeping for %ds - Rate Limits\n", secs)
             time.sleep(secs)
 
-    def check_429(self, res):
+    def check_429(self, res: requests.Response):
         if res.status_code == 429:
 
             try:
-                json = res.json()
-                self.rate_limit_sleep_time = json["retry_after"]/1000
-            except (ValueError, JSONDecodeError, KeyError, TypeError) as e:
-                print(e)
+                data = res.json()
+                self.rate_limit_sleep_time = data["retry_after"] / 1000
+            except (ValueError, JSONDecodeError, KeyError, TypeError) as error:
+                logging.debug(error)
                 self.rate_limit_sleep_time = 60
 
-            logging.info(
-                f"429 Received - Sleeping for {self.rate_limit_sleep_time}s")
+            logging.info("429 Received - Sleeping for %ds",
+                         self.rate_limit_sleep_time)
             time.sleep(self.rate_limit_sleep_time)
             res = requests.post(self.webhook_url, json=self.webhook_data)

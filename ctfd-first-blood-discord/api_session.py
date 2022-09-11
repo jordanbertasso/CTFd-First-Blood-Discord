@@ -1,7 +1,9 @@
+from typing import Any, Dict
 from urllib.parse import urljoin, urlparse
 
+from requests import Response, Session
+
 import config
-from requests import Session
 
 
 class API_Session(Session):
@@ -18,7 +20,10 @@ class API_Session(Session):
         parsed = urlparse(config.host)
         self.endpoint = urljoin(parsed.geturl(), "/api/v1/")
 
-    def get(self, url, params=None, **kwargs):
+    def get(self,
+            url: str,
+            params: Any = None,
+            **kwargs: Dict[str, Any]) -> Response:
         if url[0] == "/":
             url = url[1:]
 

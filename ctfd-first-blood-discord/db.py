@@ -19,11 +19,11 @@ class db:
     @staticmethod
     def add_to_db(chal: Challenge, solved_users: List[User]):
         db.cursor.execute(
-            "SELECT user_id FROM announced_solves WHERE chal_id = ?", (chal.id,))
+            "SELECT user_id FROM announced_solves WHERE chal_id = ?", (chal.chal_id,))
         announced_ids = db.cursor.fetchall()
 
         for user in solved_users:
-            if user.id not in announced_ids:
+            if user.user_id not in announced_ids:
                 db.cursor.execute(
-                    "INSERT INTO announced_solves VALUES (?, ?)", (chal.id, user.id))
+                    "INSERT INTO announced_solves VALUES (?, ?)", (chal.chal_id, user.user_id))
                 db.conn.commit()
