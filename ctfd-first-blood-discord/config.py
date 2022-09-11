@@ -29,6 +29,6 @@ category_emojis = {
     "rev": [":rewind:"],
     "forensics": [":mag:"],
     "osint": [":detective:"],
-    "blockchain": [":white_large_square:", ":chains:"],
+    "blockchain": [":white_large_square::chains:"],
     "misc": [":jigsaw:"],
 }
