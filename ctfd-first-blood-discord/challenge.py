@@ -28,13 +28,13 @@ class Challenge():
         try:
             res = s.get(f"challenges/{self.chal_id}/solves")
         except requests.RequestException as error:
-            logging.debug(error)
+            logging.error(error)
             return None
 
         try:
             data = res.json()["data"]
         except (ValueError, JSONDecodeError, KeyError) as error:
-            logging.debug(error)
+            logging.error(error)
             return None
 
         solved_users = [
@@ -54,19 +54,19 @@ class Challenge():
 
                     category_cache[self.chal_id] = self.category
                 except requests.RequestException as error:
-                    logging.debug(error)
+                    logging.error(error)
 
     def get_first_blood_user(self) -> User | None:
         try:
             res = s.get(f"challenges/{self.chal_id}/solves")
         except requests.RequestException as error:
-            logging.debug(error)
+            logging.error(error)
             return None
 
         try:
             data = res.json()["data"]
         except (ValueError, JSONDecodeError, KeyError) as error:
-            logging.debug(error)
+            logging.error(error)
             return None
 
         solves = [{

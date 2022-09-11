@@ -78,7 +78,7 @@ class Announcer:
                 data = res.json()
                 self.rate_limit_sleep_time = data["retry_after"] / 1000
             except (ValueError, JSONDecodeError, KeyError, TypeError) as error:
-                logging.debug(error)
+                logging.error(error)
                 self.rate_limit_sleep_time = 60
 
             logging.info("429 Received - Sleeping for %ds",

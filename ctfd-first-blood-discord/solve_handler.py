@@ -26,7 +26,7 @@ class SolveHandler:
         try:
             res = s.get("statistics/challenges/solves")
         except requests.RequestException as error:
-            logging.debug(error)
+            logging.error(error)
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
 
@@ -51,7 +51,7 @@ class SolveHandler:
         try:
             res = s.get("statistics/challenges/solves")
         except requests.RequestException as error:
-            logging.debug(error)
+            logging.error(error)
             loop.call_later(config.poll_period, self.handle_solves, loop)
             return
 
