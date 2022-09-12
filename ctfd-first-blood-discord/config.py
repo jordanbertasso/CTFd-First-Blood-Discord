@@ -1,28 +1,28 @@
 # CTFd API endpoint
-host = "https://ctfd.io"
+HOST = "https://ctfd.io"
 
 # CTFd API token
-api_token = ""
+API_TOKEN = ""
 
 # How frequently to check for new solves
-poll_period = 10
+POLL_PERIOD = 10
 
 # Discord webhook url
-webhook_url = ""
+WEBHOOK_URL = ""
 
 # Available template variables are:
 # User Name (if individual mode) / Team Name (if team mode): {user_name}
 # Challenge Name: {chal_name}
-first_blood_announce_string = ":knife::drop_of_blood: First Blood for challenge **{chal_name}** goes to **{user_name}**! {emojis}"
+FIRST_BLOOD_ANNOUNCE_STRING = ":knife::drop_of_blood: First Blood for challenge **{chal_name}** goes to **{user_name}**! {emojis}"
 
 # To be used with announce_all_solves
-solve_announce_string = "**{user_name}** just solved **{chal_name}**! {emojis}"
+SOLVE_ANNOUNCE_STRING = "**{user_name}** just solved **{chal_name}**! {emojis}"
 
 # Whether or not to announce all solves as well as first bloods
-announce_all_solves = True
+ANNOUNCE_ALL_SOLVES = False
 
 # Category Emojis (if any)
-category_emojis = {
+CATEGORY_EMOJIS = {
     "web": [":globe_with_meridians:"],
     "crypto": [":sob::closed_lock_with_key:"],
     "pwn": [":bug:"],

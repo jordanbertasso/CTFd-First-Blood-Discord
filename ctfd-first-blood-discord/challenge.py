@@ -1,6 +1,6 @@
 import logging
 from json.decoder import JSONDecodeError
-from typing import Dict, cast
+from typing import Optional, Dict, cast
 
 import requests
 from dateutil.parser import isoparser
@@ -14,7 +14,7 @@ category_cache: Dict[int, str] = {}
 class Challenge():
     chal_id: int
     name: str
-    category: str | None = None
+    category: Optional[str] = None
     num_solves: int
 
     def __init__(self, chal_id: int, name: str, num_solves: int):
@@ -56,7 +56,7 @@ class Challenge():
                 except requests.RequestException as error:
                     logging.error(error)
 
-    def get_first_blood_user(self) -> User | None:
+    def get_first_blood_user(self) -> Optional[User]:
         try:
             res = s.get(f"challenges/{self.chal_id}/solves")
         except requests.RequestException as error:

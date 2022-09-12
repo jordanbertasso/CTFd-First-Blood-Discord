@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from db import db
+from db import DB
 from solve_handler import SolveHandler
 
 
@@ -13,7 +13,7 @@ def main():
     handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(handler)
 
-    db.init_db()
+    DB.init_db()
 
     solve_handler = SolveHandler()
     loop = asyncio.new_event_loop()

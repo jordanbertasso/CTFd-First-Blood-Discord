@@ -10,7 +10,7 @@ import config
 from announcer import Announcer
 from api_session import session as s
 from challenge import Challenge
-from db import db
+from db import DB
 
 
 class SolveHandler:
@@ -42,12 +42,12 @@ class SolveHandler:
 
             users = chal.get_solved_users()
             if users:
-                db.add_to_db(chal, users)
+                DB.add_to_db(chal, users)
 
         asyncio.create_task(self.handle_solves())
 
     async def handle_solves(self):
-        await asyncio.sleep(config.poll_period)
+        await asyncio.sleep(config.POLL_PERIOD)
 
         logging.debug("NEW ROUND")
         try:
@@ -69,10 +69,10 @@ class SolveHandler:
                              chal_data["solves"])
 
             if chal.num_solves > 0:
-                db.cursor.execute(
+                DB.cursor.execute(
                     "SELECT user_id FROM announced_solves WHERE chal_id = ?",
                     (chal.chal_id, ))
-                res = db.cursor.fetchall()
+                res = DB.cursor.fetchall()
                 logging.debug("Solvers id's: %s", res)
 
                 # If there are no announced solves then announce the first blood
@@ -82,12 +82,12 @@ class SolveHandler:
                     logging.debug("Already announced first blood for %s",
                                   chal.name)
 
-            if config.announce_all_solves and chal.num_solves > 0:
+            if config.ANNOUNCE_ALL_SOLVES and chal.num_solves > 0:
                 try:
-                    db.cursor.execute(
+                    DB.cursor.execute(
                         "SELECT chal_id FROM announced_solves WHERE chal_id = ?",
                         (chal.chal_id, ))
-                    res = db.cursor.fetchone()
+                    res = DB.cursor.fetchone()
                     assert res != []
                 except AssertionError:
                     logging.error(
@@ -106,12 +106,12 @@ class SolveHandler:
         if not user:
             return
 
-        db.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
+        DB.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
                           (chal.chal_id, user.user_id))
-        db.conn.commit()
+        DB.conn.commit()
 
         if chal.category:
-            emojis = config.category_emojis.get(chal.category, "")
+            emojis = config.CATEGORY_EMOJIS.get(chal.category, "")
         else:
             emojis = ""
 
@@ -126,22 +126,22 @@ class SolveHandler:
         if not users:
             return
 
-        db.cursor.execute(
+        DB.cursor.execute(
             "SELECT user_id FROM announced_solves WHERE chal_id = ?",
             (chal.chal_id, ))
-        res = db.cursor.fetchall()
+        res = DB.cursor.fetchall()
 
         for user in users:
             if (user.user_id, ) not in res:
                 logging.info("New Solve - Challenge: %s - User: %s", chal.name,
                              user.name)
 
-                db.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
+                DB.cursor.execute("INSERT INTO announced_solves VALUES (?, ?)",
                                   (chal.chal_id, user.user_id))
-                db.conn.commit()
+                DB.conn.commit()
 
                 if chal.category:
-                    emojis = config.category_emojis.get(chal.category, "")
+                    emojis = config.CATEGORY_EMOJIS.get(chal.category, "")
                 else:
                     emojis = ""
                 self.announcer.announce(chal.name,

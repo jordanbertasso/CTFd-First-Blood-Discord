@@ -17,9 +17,9 @@ class Announcer:
     rate_limit_sleep_time: int
 
     def __init__(self):
-        self.webhook_url = config.webhook_url
-        self.solve_string = config.solve_announce_string
-        self.first_blood_string = config.first_blood_announce_string
+        self.webhook_url = config.WEBHOOK_URL
+        self.solve_string = config.SOLVE_ANNOUNCE_STRING
+        self.first_blood_string = config.FIRST_BLOOD_ANNOUNCE_STRING
         self.webhook_data = json.loads(
             requests.get(self.webhook_url).content.decode())
         self.rate_limit_remaining = 1
