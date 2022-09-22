@@ -1,6 +1,6 @@
 import logging
 from json.decoder import JSONDecodeError
-from typing import Optional, Dict, cast
+from typing import Dict, Optional, cast
 
 import requests
 from dateutil.parser import isoparser

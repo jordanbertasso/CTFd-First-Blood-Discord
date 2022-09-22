@@ -49,7 +49,7 @@ class SolveHandler:
     async def handle_solves(self):
         await asyncio.sleep(config.POLL_PERIOD)
 
-        logging.debug("NEW ROUND")
+        logging.warn("NEW ROUND")
         try:
             res = s.get("statistics/challenges/solves")
         except requests.RequestException as error:
