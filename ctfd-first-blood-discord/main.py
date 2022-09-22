@@ -7,7 +7,7 @@ from solve_handler import SolveHandler
 
 def main():
     logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.WARN)
 
     handler = logging.FileHandler("./data/ctfd-first-blood-discord.log")
     handler.setLevel(logging.INFO)
