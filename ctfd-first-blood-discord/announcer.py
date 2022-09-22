@@ -1,11 +1,9 @@
 import json
-import logging
-import time
-from json.decoder import JSONDecodeError
 from typing import Any, Dict
 
 import requests
 from discord import Webhook
+import aiohttp
 
 import config
 
@@ -22,26 +20,26 @@ class Announcer:
         self.solve_string = config.SOLVE_ANNOUNCE_STRING
         self.first_blood_string = config.FIRST_BLOOD_ANNOUNCE_STRING
         self.webhook_data = json.loads(
-            requests.get(self.webhook_url).content.decode())
+            requests.get(self.webhook_url, timeout=10).content.decode())
         self.rate_limit_remaining = 1
         self.rate_limit_sleep_time = 0
 
-    def announce(self,
+    async def announce(self,
                  chal_name: str,
                  user_name: str,
                  emoji: str,
                  first_blood: bool = False):
-        self.check_rate_limits()
 
-        webhook = Webhook.from_url(url=self.webhook_url, )
+        async with aiohttp.ClientSession() as session:
+            webhook = Webhook.from_url(url=self.webhook_url, session=session)
 
-        if first_blood:
-            webhook.send(
-                self.first_blood_string.format(user_name=user_name,
-                                               chal_name=chal_name,
-                                               emojis=emoji))
-        else:
-            webhook.send(
-                self.solve_string.format(user_name=user_name,
-                                         chal_name=chal_name,
-                                         emojis=emoji))
+            if first_blood:
+                await webhook.send(
+                    self.first_blood_string.format(user_name=user_name,
+                                                chal_name=chal_name,
+                                                emojis=emoji))
+            else:
+                await webhook.send(
+                    self.solve_string.format(user_name=user_name,
+                                            chal_name=chal_name,
+                                            emojis=emoji))

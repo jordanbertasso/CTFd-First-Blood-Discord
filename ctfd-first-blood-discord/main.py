@@ -10,7 +10,7 @@ def main():
     logging.getLogger().setLevel(logging.WARN)
 
     handler = logging.FileHandler("./data/ctfd-first-blood-discord.log")
-    handler.setLevel(logging.INFO)
+    handler.setLevel(logging.DEBUG)
     logging.getLogger().addHandler(handler)
 
     DB.init_db()

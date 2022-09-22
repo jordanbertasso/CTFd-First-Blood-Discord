@@ -21,7 +21,7 @@ class SolveHandler:
         self.announcer = Announcer()
 
     async def handle_past_solves(self):
-        logging.debug("HANDLING PAST SOLVES")
+        logging.log(logging.WARN, "HANDLING PAST SOLVES")
 
         try:
             res = s.get("statistics/challenges/solves")
@@ -49,7 +49,7 @@ class SolveHandler:
     async def handle_solves(self):
         await asyncio.sleep(config.POLL_PERIOD)
 
-        logging.warn("NEW ROUND")
+        logging.log(logging.WARN, "NEW ROUND")
         try:
             res = s.get("statistics/challenges/solves")
         except requests.RequestException as error:
@@ -77,7 +77,7 @@ class SolveHandler:
 
                 # If there are no announced solves then announce the first blood
                 if not res:
-                    self.handle_first_blood(chal)
+                    await self.handle_first_blood(chal)
                 else:
                     logging.debug("Already announced first blood for %s",
                                   chal.name)
@@ -95,11 +95,11 @@ class SolveHandler:
                     )
                     break
 
-                self.handle_new_solves(chal)
+                await self.handle_new_solves(chal)
 
         asyncio.create_task(self.handle_solves())
 
-    def handle_first_blood(self, chal: Challenge):
+    async def handle_first_blood(self, chal: Challenge):
         logging.info("Challenge: %s - %s", chal.name, chal.chal_id)
 
         user = chal.get_first_blood_user()
@@ -111,16 +111,21 @@ class SolveHandler:
         DB.conn.commit()
 
         if chal.category:
-            emojis = config.CATEGORY_EMOJIS.get(chal.category, "")
+            emojis = config.CATEGORY_EMOJIS.get(chal.category, [])
         else:
-            emojis = ""
+            emojis = []
 
-        self.announcer.announce(chal.name,
-                                user.name,
-                                random.choice(emojis),
-                                first_blood=True)
+        if emojis:
+            emoji_string = random.choice(emojis)
+        else:
+            emoji_string = ""
 
-    def handle_new_solves(self, chal: Challenge):
+        await self.announcer.announce(chal.name,
+                                      user.name,
+                                      emoji_string,
+                                      first_blood=True)
+
+    async def handle_new_solves(self, chal: Challenge):
         users = chal.get_solved_users()
 
         if not users:
@@ -141,13 +146,19 @@ class SolveHandler:
                 DB.conn.commit()
 
                 if chal.category:
-                    emojis = config.CATEGORY_EMOJIS.get(chal.category, "")
+                    emojis = config.CATEGORY_EMOJIS.get(chal.category, [])
                 else:
-                    emojis = ""
-                self.announcer.announce(chal.name,
-                                        user.name,
-                                        random.choice(emojis),
-                                        first_blood=False)
+                    emojis = []
+
+                if emojis:
+                    emoji_string = random.choice(emojis)
+                else:
+                    emoji_string = ""
+
+                await self.announcer.announce(chal.name,
+                                              user.name,
+                                              emoji_string,
+                                              first_blood=False)
             else:
                 logging.debug("Already announced solve on %s by %s - %s",
                               chal.name, user.name, user.user_id)
