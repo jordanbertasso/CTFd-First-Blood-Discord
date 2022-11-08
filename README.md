@@ -1,4 +1,10 @@
 # CTFd First Blood Discord
+
+# ⚠️ Deprecation Notice ⚠️
+I will no longer be maintaining this bot and I suggest you migrate to my Rust rewrite https://github.com/jordanbertasso/ctfd-solve-announcer-discord
+
+---
+
 This is a dockerised bot that uses Discords channel webhook feature to announce CTFd first bloods.
 
 ## Usage
